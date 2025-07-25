@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reception Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="text"], button {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Reception Dashboard</h2>
+
+    <!-- Filter Buttons -->
+    <div>
+        <button onclick="showTable('today-patients')">Today's Patients</button>
+        <button onclick="showTable('future-patients')">Future Patients</button>
+        <button onclick="showTable('past-patients')">Past Patients</button>
+        <button onclick="showTable('checked-in-patients')">Checked-In Patients</button>
+    </div>
+
+    <!-- Search Bar -->
+    <input type="text" id="search-bar" placeholder="Search by name..." onkeyup="filterTable(currentTable)">
+
+    <!-- Today's Patients -->
+    <table id="today-patients" class="hidden">
+        <tr>
+            <th>Unique ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Admit Date</th>
+            <th>Doctor Specialty</th>
+            <th>Actions</th>
+        </tr>
+        {% for patient in today_patients %}
+        <tr>
+            <td>{{ patient.unique_id }}</td>
+            <td>{{ patient.first_name }}</td>
+            <td>{{ patient.last_name }}</td>
+            <td>{{ patient.admit_date }}</td>
+            <td>{{ patient.doctor_specialty }}</td>
+            <td>
+                <form method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="patient_id" value="{{ patient.unique_id }}">
+                    <input type="hidden" name="action" value="check_in">
+                    <button type="submit" {% if patient.unique_id in check_in_patients_ids %}disabled{% endif %}>
+                        Check-In
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Future Patients -->
+    <table id="future-patients" class="hidden">
+        <tr>
+            <th>Unique ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Appointment Date</th>
+            <th>Doctor Specialty</th>
+        </tr>
+        {% for patient in future_patients %}
+        <tr>
+            <td>{{ patient.unique_id }}</td>
+            <td>{{ patient.first_name }}</td>
+            <td>{{ patient.last_name }}</td>
+            <td>{{ patient.appointment_date }}</td>
+            <td>{{ patient.doctor_specialty }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Past Patients -->
+    <table id="past-patients" class="hidden">
+        <tr>
+            <th>Unique ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Last Visit Date</th>
+            <th>Doctor Specialty</th>
+        </tr>
+        {% for patient in past_patients %}
+        <tr>
+            <td>{{ patient.unique_id }}</td>
+            <td>{{ patient.first_name }}</td>
+            <td>{{ patient.last_name }}</td>
+            <td>{{ patient.last_visit_date }}</td>
+            <td>{{ patient.doctor_specialty }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Checked-In Patients -->
+    <table id="checked-in-patients" class="hidden">
+        <tr>
+            <th>Unique ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Admit Date</th>
+            <th>Doctor Specialty</th>
+            <th>Problem</th>
+            <th>Actions</th>
+        </tr>
+        {% for patient in check_in_patients %}
+        <tr>
+            <td>{{ patient.unique_id }}</td>
+            <td>{{ patient.first_name }}</td>
+            <td>{{ patient.last_name }}</td>
+            <td>{{ patient.admit_date }}</td>
+            <td>{{ patient.doctor_specialty }}</td>
+            <td>{{ patient.problem }}</td>
+            <td>
+                <button onclick="printPatient('{{ patient.unique_id }}')">Print</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        let currentTable = 'today-patients'; // Default table to show
+
+        function showTable(tableId) {
+            // Hide all tables
+            const tables = document.querySelectorAll('table');
+            tables.forEach(table => table.classList.add('hidden'));
+
+            // Show the selected table
+            document.getElementById(tableId).classList.remove('hidden');
+            currentTable = tableId; // Update current table for filtering
+        }
+
+        function filterTable(tableId) {
+            const input = document.getElementById('search-bar');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById(tableId);
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const match = [...cells].some(cell => cell.innerText.toLowerCase().includes(filter));
+                rows[i].style.display = match ? '' : 'none';
+            }
+        }
+
+        function printPatient(patientId) {
+            alert("Printing details for patient: " + patientId);
+        }
+
+        // Show the default table on load
+        document.addEventListener('DOMContentLoaded', () => showTable(currentTable));
+    </script>
+
+</body>
+</html>

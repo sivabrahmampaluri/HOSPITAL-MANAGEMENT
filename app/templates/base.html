@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <header>
+        <h1>File Upload System</h1>
+    </header>
+
+    <main>
+        <div class="container">
+            <h2>Upload Your File</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% block content %}{% endblock %} <!-- Content injected from index.html -->
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Your Website Name</p>
+    </footer>
+</body>
+</html>

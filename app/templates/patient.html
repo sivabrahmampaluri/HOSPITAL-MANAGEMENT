@@ -1,0 +1,75 @@
+<html>
+<head>
+    <style>
+        .main {
+            text-align: center;
+        }
+        #phone {
+            padding: 7px;
+            width: 180px;
+        }
+        .button1 {
+            padding: 7px;
+            width: 90px;
+            background-color: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .button1:hover {
+            background-color: gray;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="main">Patient Information</h1><br><hr>
+    <h3>Consult a doctor</h3><br>
+    <a href="{% url 'new_patient' %}"><button>New Patient</button></a>
+    <a href="{% url 'existing_patient' %}"><button>Existing Patient</button></a><br><br>
+    <h4>Search By Phone Number</h4><br>
+    <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required="">
+    <button id="getOtp" class="button1" onclick="sendOtp()">Get OTP</button><br><br>
+    <input type="text" id="otp" name="otp" placeholder="Enter OTP" style="display: none; padding: 7px; width: 180px;">
+    <button id="verifyOtp" class="button1" style="display: none;" onclick="verifyOtp()">Verify OTP</button>
+
+    <script>
+        function sendOtp() {
+            const phone = document.getElementById("phone").value;
+            if (phone) {
+                fetch(`/send_otp?phone=${phone}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert("OTP sent to " + phone);
+                            document.getElementById("otp").style.display = "inline-block";
+                            document.getElementById("verifyOtp").style.display = "inline-block";
+                        } else {
+                            alert(data.error || "Failed to send OTP");
+                        }
+                    });
+            } else {
+                alert("Please enter a valid phone number.");
+            }
+        }
+
+        function verifyOtp() {
+            const phone = document.getElementById("phone").value;
+            const otp = document.getElementById("otp").value;
+            if (phone && otp) {
+                fetch(`/verify_patient?phone=${phone}&otp=${otp}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Redirect to patient details page
+                            window.location.href = `/patient_details/${data.patient_id}/`;
+                        } else {
+                            alert(data.error || "Invalid OTP or Phone number");
+                        }
+                    });
+            } else {
+                alert("Please enter both phone number and OTP.");
+            }
+        }
+    </script>
+</body>
+</html>

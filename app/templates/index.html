@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Upload a PDF File</h2>
+    <form method="POST" enctype="multipart/form-data" id="upload-form">
+        {% csrf_token %}
+        <div id="dynamic-fields" style="display: none;">
+            <div class="mb-3">
+                <label for="prefix" class="form-label">Enter Prefix:</label>
+                <input type="text" class="form-control" id="prefix" name="prefix" placeholder="Enter a number">
+            </div>
+            <div class="mb-3">
+                <label for="file" class="form-label">Choose File:</label>
+                <input type="file" class="form-control" id="file" name="file">
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary" id="save-btn">Save</button>
+        <button type="submit" class="btn btn-success" style="display: none;" id="submit-btn">Submit</button>
+    </form>
+
+    <!-- Button to view files -->
+    <a href="{% url 'view_files' %}" class="btn btn-secondary mt-3">View Files</a>
+</div>
+
+<script>
+    document.getElementById("save-btn").addEventListener("click", function () {
+        document.getElementById("dynamic-fields").style.display = "block";
+        document.getElementById("submit-btn").style.display = "inline-block";
+        this.style.display = "none";
+    });
+</script>
+{% endblock %}
